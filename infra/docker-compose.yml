@@ -7,6 +7,19 @@ services:
       POSTGRES_PASSWORD: dev
       POSTGRES_DB: robotrader
     ports: ["5432:5432"]
+
   redis:
     image: redis:7
     ports: ["6379:6379"]
+
+  ingest:
+    build: ../backend
+    container_name: robotrader-ingest
+    env_file:
+      - ../backend/.env
+    volumes:
+      - ../backend:/app
+    networks:
+      - default
+    restart: always
+    command: ["python","app/data_ingest_continuous.py"]
