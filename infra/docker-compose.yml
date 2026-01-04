@@ -6,6 +6,8 @@ services:
       POSTGRES_USER: dev
       POSTGRES_PASSWORD: dev
       POSTGRES_DB: robotrader
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     ports: ["5432:5432"]
 
   redis:
@@ -23,3 +25,21 @@ services:
       - default
     restart: always
     command: ["python","app/data_ingest_continuous.py"]
+
+  api:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: robotrader-api
+    env_file:
+      - ../backend/.env
+    depends_on:
+      - postgres
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../backend/app:/app/app
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
